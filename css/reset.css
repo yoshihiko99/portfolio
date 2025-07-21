@@ -1,0 +1,236 @@
+/**
+ * uaplus.css version 0.0.1
+ */
+
+/**
+ * 異なるボックスモデル
+ * ボックスモデルは従来のものを使用します。このモデルは要素のpaddingとborderは指定されて幅と高さの内側に描画され、外側には描画されません。
+ * そのため<code>inline-size</code>や<code>block-size</code>のようなプロパティで相対単位と絶対単位を組み合わせることが簡単になります。
+ */
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+}
+
+/**
+ * フォーカススタイルを改善する
+ * コンテンツとフォーカス時のアウトラインの間にスペースを追加します。
+ */
+:focus-visible {
+  outline-offset: 3px;
+}
+
+/**
+ * テキストのサイズ調整を無効にする
+ * スマホに最適化されていないWebサイトでの読みやすさを改善するために、モバイルSafariなどのブラウザはWebサイトを縦から横に切り替えたときにデフォルトのフォントサイズを大きくします。最適化されたWebサイトではどの動作を望んでいません。
+ */
+:where(html) {
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+}
+
+/**
+ * 行間を広げる
+ * 長い段落は行間を広くすると読みやすくなります。
+ */
+:where(html) {
+  line-height: 1.5;
+}
+
+/**
+ * スクロールバーのガターを追加する
+ * 長いページから短いページに切り替える際に、ページがジャンプするのを防ぎます。
+ */
+:where(html) {
+  /* scrollbar-gutter: stable; */
+}
+
+/**
+ * セクショニングコンテンツ内にあるh1要素のUAスタイルを削除します。
+ * sectionやarticleなどでh1要素をネストしてもセマンティックには影響しないため、見出しのスタイルには影響しません。
+ */
+:where(h1) {
+  font-size: 2em;
+  margin-block: 0.67em;
+}
+
+/**
+ * title付きの略語を改善する
+ * title付きのabbr要素はブラウザのサポートに一貫性がなく、一部のユーザーにしかアクセシブルでないため、アクセシビリティの観点からあまり役に立ちません。それでも一般的にはよく使用されています。
+ * このルールは、すべてのブラウザで略語に点線の下線を表示し（Safariにはバグがあります）、カーソルを変更します。
+ */
+:where(abbr[title]) {
+  cursor: help;
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+}
+
+/**
+ * 強制カラーモード（forced-colors）でmark要素を最適化する
+ * forced-colorsがacritveの強制カラーモード時はmark要素のカラーが変化しないため、問題が発生する可能性があります。代わりにシステムカラーを使用します。
+ */
+@media (forced-colors: active) {
+  mark {
+    color: HighlightText;
+    background-color: Highlight;
+  }
+}
+
+/**
+ * スクリーンリーダーにdel, ins, sを伝えます
+ * 「deleteion」をアナウンスするNVDA (2024.4.2)を除いて、一般的なスクリーンリーダーは<s>要素をアナウンスしません。macOSとiOSのVoice OverとNarratorは<ins>と<del>をアナウンスしません。通常、スクリーンリーダーがテキストレベルのセマンティックをアナウンスしないことは許容範囲ですが、デベロッパーが<s>のような要素がセマンティックを伝えない可能性があることを知らずに使用することはよくある問題です。
+ * 取り消し・挿入・削除されたコンテンツの開始と終了を疑似要素で伝えます。英語以外の言語の場合は、翻訳して伝える必要があります。たとえば日本語だと、:lang(ja) :where(s::before) { content: "取り消し線付きテキストの開始"; }となります。
+ */
+:where(del, ins, s)::before,
+:where(del, ins, s)::after {
+  clip-path: inset(100%);
+  clip: rect(1px, 1px, 1px, 1px);
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  content: "test";
+}
+
+:where(s)::before {
+  content: "stricken text start ";
+}
+
+:where(s)::after {
+  content: " stricken text end";
+}
+
+:where(del)::before {
+  content: "deletion start ";
+}
+
+:where(del)::after {
+  content: " deletion end";
+}
+
+:where(ins)::before {
+  content: "insertion start ";
+}
+
+:where(ins)::after {
+  content: " insertion end";
+}
+
+/**
+ * 埋め込みコンテンツによるオーバーフローを回避する
+ * 埋め込みコンテンツ（音声、動画、画像など）がコンテナからはみ出さないようにします。
+ */
+:where(audio, iframe, img, svg, video) {
+  max-block-size: 100%;
+  max-inline-size: 100%;
+}
+
+/**
+ * fieldsetによるオーバーフローを防止する
+ * デフォルトのmin-inline-size: min-contentをリセットして、子要素によるfieldsetの拡張を防止します。
+ */
+:where(fieldset) {
+  min-inline-size: 0;
+}
+
+/**
+ * ラベルをブロック要素にする
+ * input, select, textareaのlabel要素をブロック要素にします。
+ */
+:where(label):has(+ :where(textarea, input, select)) {
+  display: block;
+}
+
+/**
+ * textareaのブロックサイズを大きくする
+ * テキストエリアのデフォルトの高さは小さいので、少し大きくします。
+ */
+:where(textarea:not([rows])) {
+  min-block-size: 6em;
+}
+
+/**
+ * フォーム要素のフォントスタイルを継承する
+ * button, input, select, textareaのfont-familyとfont-sizeは、ページの他の部分と同じにします。
+ */
+:where(button, input, select, textarea) {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/**
+ * 検索入力のスタイルを正規化する
+ * macOSおよびiOSの検索入力の角丸を削除し、背景色を正規化します。
+ */
+:where([type="search"]) {
+  -webkit-appearance: textfield;
+}
+
+/* iOS only */
+@supports (-webkit-touch-callout: none) {
+  :where([type="search"]) {
+    border: 1px solid -apple-system-secondary-label;
+    background-color: canvas;
+  }
+}
+
+/**
+ * 一部の入力欄で方向を維持する
+ * 右から左に記述する言語では一部の入力欄は左揃えのままにする必要がありますが、プレースホルダは右揃えにする必要があるため、値が空でない場合のみに限ります。
+ */
+:where([type="tel"], [type="url"], [type="email"], [type="number"]):not(
+    :placeholder-shown
+  ) {
+  direction: ltr;
+}
+
+/**
+ * 表のスタイルを改善する
+ * デフォルトのスタイル設定では表が見づらいため、paddingと折り返し境界線を追加します。
+ */
+:where(table) {
+  border-collapse: collapse;
+  border: 1px solid;
+}
+
+:where(th, td) {
+  border: 1px solid;
+  padding: 0.25em 0.5em;
+}
+
+/**
+ * ダイアログのフェードイン
+ * ダイアログ要素と背景にフェードインとフェードアウトのトランジションを追加します。
+ */
+:where(dialog)::backdrop {
+  background: oklch(0% 0 0 / 0.3);
+}
+
+:where(dialog),
+:where(dialog)::backdrop {
+  opacity: 0;
+  transition: opacity 300ms ease-out, display 300ms allow-discrete,
+    overlay 300ms allow-discrete;
+}
+
+:where(dialog[open]),
+:where(dialog[open])::backdrop {
+  opacity: 1;
+}
+
+@starting-style {
+  :where(dialog[open]),
+  :where(dialog[open])::backdrop {
+    opacity: 0;
+  }
+}
+
+/**
+ * [hidden]の詳細度を向上させる
+ * [hidden]属性を持つ要素が誤って非表示解除されにくくなり、同時に見つかるまでの機能が維持されます。
+ */
+[hidden]:not([hidden="until-found"]) {
+  display: none !important;
+}
